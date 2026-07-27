@@ -123,3 +123,121 @@ def simulate_ornstein_uhlenbeck(
     )
 
     return times, paths
+
+def simulate_ornstein_uhlenbeck_exact(
+    initial_value: float,
+    mean_level: float,
+    mean_reversion_speed: float,
+    volatility: float,
+    maturity: float,
+    n_steps: int,
+    n_paths: int = 1,
+    seed: int | None = None,
+):
+    """
+    Simule exactement un processus d'Ornstein-Uhlenbeck
+    aux dates discrètes choisies.
+
+    La transition exacte est :
+
+        X_{t+dt} = mu
+                   + (X_t - mu) exp(-theta dt)
+                   + noise_std * Z
+
+    où Z suit une loi normale centrée réduite.
+    """
+
+    if mean_reversion_speed <= 0:
+        raise ValueError(
+            "La vitesse de retour à la moyenne doit être positive."
+        )
+
+    if volatility < 0:
+        raise ValueError(
+            "La volatilité ne peut pas être négative."
+        )
+
+    if maturity <= 0:
+        raise ValueError(
+            "La maturité doit être positive."
+        )
+
+    if n_steps <= 0:
+        raise ValueError(
+            "Le nombre de pas doit être positif."
+        )
+
+    if n_paths <= 0:
+        raise ValueError(
+            "Le nombre de trajectoires doit être positif."
+        )
+
+    rng = np.random.default_rng(seed)
+
+    dt = maturity / n_steps
+
+    normal_shocks = rng.normal(
+        loc=0.0,
+        scale=1.0,
+        size=(n_paths, n_steps),
+    )
+
+    paths = np.zeros(
+        (n_paths, n_steps + 1)
+    )
+
+    paths[:, 0] = initial_value
+
+    # Coefficient exact de retour à la moyenne
+    decay_factor = np.exp(
+        -mean_reversion_speed * dt
+    )
+
+    # Écart-type exact du bruit accumulé pendant dt
+    noise_standard_deviation = (
+        volatility
+        * np.sqrt(
+            (
+                1.0
+                - np.exp(
+                    -2.0
+                    * mean_reversion_speed
+                    * dt
+                )
+            )
+            / (
+                2.0
+                * mean_reversion_speed
+            )
+        )
+    )
+
+    for step in range(n_steps):
+        current_values = paths[:, step]
+
+        conditional_mean = (
+            mean_level
+            + (
+                current_values
+                - mean_level
+            )
+            * decay_factor
+        )
+
+        random_noise = (
+            noise_standard_deviation
+            * normal_shocks[:, step]
+        )
+
+        paths[:, step + 1] = (
+            conditional_mean
+            + random_noise
+        )
+
+    times = np.linspace(
+        0.0,
+        maturity,
+        n_steps + 1,
+    )
+
+    return times, paths
