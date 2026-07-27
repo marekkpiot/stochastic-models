@@ -1,2 +1,2 @@
 # sde-simulation
-Simulation of stochastic diiferential equationsin Python
+Simulation of stochastic diiferential equations in Python

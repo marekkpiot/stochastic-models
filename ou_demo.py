@@ -1,6 +1,6 @@
-import matplotlib
+#import matplotlib
 
-matplotlib.use("Agg")
+#matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 
@@ -63,4 +63,4 @@ plt.savefig(
     bbox_inches="tight",
 )
 
-plt.close()
+plt.show()
