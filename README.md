@@ -2,7 +2,14 @@
 
 Projet pédagogique en Python consacré à la simulation numérique de processus stochastiques utilisés en finance quantitative.
 
-Le projet étudie principalement le **processus d’Ornstein–Uhlenbeck**, puis introduit le **modèle de Heston** comme extension. L’objectif est de relier les équations mathématiques, leur interprétation probabiliste et leur implémentation numérique.
+Le projet étudie principalement le processus d’Ornstein–Uhlenbeck, puis introduit le modèle de Heston comme extension.
+
+L’objectif est de relier :
+
+- les équations mathématiques ;
+- leur interprétation probabiliste ;
+- leur implémentation en Python ;
+- leur vérification par simulation.
 
 ## Objectifs du projet
 
@@ -20,45 +27,41 @@ Le projet étudie principalement le **processus d’Ornstein–Uhlenbeck**, puis
 
 ## 1. Processus d’Ornstein–Uhlenbeck
 
-Le processus d’Ornstein–Uhlenbeck est défini par :
+Le processus d’Ornstein–Uhlenbeck est défini par l’équation :
 
-$$
-dX_t = \theta(\mu-X_t)\,dt + \sigma\,dW_t
-$$
+```text
+dX(t) = theta × (mu - X(t)) × dt + sigma × dW(t)
+```
 
 avec :
 
-- $X_t$ : valeur du processus à la date $t$ ;
-- $\mu$ : niveau moyen de long terme ;
-- $\theta$ : vitesse de retour vers la moyenne ;
-- $\sigma$ : intensité du bruit aléatoire ;
-- $W_t$ : mouvement brownien.
+- `X(t)` : valeur du processus à la date `t` ;
+- `mu` : niveau moyen de long terme ;
+- `theta` : vitesse de retour vers la moyenne ;
+- `sigma` : intensité du bruit aléatoire ;
+- `W(t)` : mouvement brownien.
 
-Le processus est attiré vers le niveau $\mu$, tout en étant continuellement perturbé par des chocs aléatoires.
+Le processus est attiré vers le niveau `mu`, tout en étant continuellement perturbé par des chocs aléatoires.
 
 ### Schéma d’Euler–Maruyama
 
-Pour simuler le processus, on découpe le temps en petits intervalles $\Delta t$ et on utilise :
+Pour simuler le processus, on découpe le temps en petits intervalles `dt` et on utilise :
 
-$$
-X_{k+1}
-=
-X_k
-+
-\theta(\mu-X_k)\Delta t
-+
-\sigma\sqrt{\Delta t}\,Z_k
-$$
+```text
+X(k+1) = X(k)
+         + theta × (mu - X(k)) × dt
+         + sigma × sqrt(dt) × Z(k)
+```
 
 où :
 
-$$
-Z_k\sim\mathcal N(0,1)
-$$
+```text
+Z(k) suit une loi normale de moyenne 0 et de variance 1.
+```
 
 La mise à jour contient deux parties :
 
-- un terme déterministe qui ramène le processus vers $\mu$ ;
+- un terme déterministe qui ramène le processus vers `mu` ;
 - un terme aléatoire provenant du mouvement brownien.
 
 ---
@@ -67,46 +70,39 @@ La mise à jour contient deux parties :
 
 La moyenne théorique du processus est :
 
-$$
-\mathbb E[X_t]
-=
-\mu+(X_0-\mu)e^{-\theta t}
-$$
+```text
+E[X(t)] = mu + (X(0) - mu) × exp(-theta × t)
+```
 
-Lorsque $t$ devient grand :
+Lorsque le temps devient grand :
 
-$$
-\mathbb E[X_t]\longrightarrow\mu
-$$
+```text
+E[X(t)] tend vers mu.
+```
 
 La variance théorique est :
 
-$$
-\operatorname{Var}(X_t)
+```text
+Var(X(t))
 =
-\frac{\sigma^2}{2\theta}
-\left(1-e^{-2\theta t}\right)
-$$
+sigma² / (2 × theta)
+×
+(1 - exp(-2 × theta × t))
+```
 
 À long terme :
 
-$$
-\operatorname{Var}(X_t)
-\longrightarrow
-\frac{\sigma^2}{2\theta}
-$$
+```text
+Var(X(t)) tend vers sigma² / (2 × theta).
+```
 
-Le processus possède donc la distribution stationnaire suivante :
+Le processus possède alors une distribution stationnaire normale :
 
-$$
-X_\infty
-\sim
-\mathcal N
-\left(
-\mu,
-\frac{\sigma^2}{2\theta}
-\right)
-$$
+```text
+Moyenne stationnaire = mu
+
+Variance stationnaire = sigma² / (2 × theta)
+```
 
 Le projet vérifie numériquement ces résultats en comparant :
 
@@ -120,25 +116,24 @@ Le projet vérifie numériquement ces résultats en comparant :
 
 Pour le processus d’Ornstein–Uhlenbeck, la transition exacte entre deux dates est connue :
 
-$$
-X_{t+\Delta t}
+```text
+X(t + dt)
 =
-\mu
+mu
 +
-(X_t-\mu)e^{-\theta\Delta t}
+(X(t) - mu) × exp(-theta × dt)
 +
-\sigma
-\sqrt{
-\frac{1-e^{-2\theta\Delta t}}{2\theta}
-}
-Z
-$$
+sigma
+×
+sqrt(
+    (1 - exp(-2 × theta × dt))
+    /
+    (2 × theta)
+)
+× Z
+```
 
-avec :
-
-$$
-Z\sim\mathcal N(0,1)
-$$
+où `Z` suit une loi normale centrée réduite.
 
 Le projet compare cette simulation exacte au schéma d’Euler–Maruyama.
 
@@ -146,7 +141,7 @@ Cette comparaison permet d’observer que :
 
 - Euler–Maruyama introduit une erreur de discrétisation ;
 - cette erreur est plus visible lorsque le pas de temps est grand ;
-- l’approximation s’améliore lorsque $\Delta t$ diminue.
+- l’approximation s’améliore lorsque le pas de temps diminue.
 
 ---
 
@@ -158,52 +153,57 @@ Des trajectoires synthétiques sont d’abord générées avec des paramètres c
 
 La prédiction moyenne d’une transition est :
 
-$$
-\widehat X_{k+1}
+```text
+X_prédit(k+1)
 =
-X_k+\theta(\mu-X_k)\Delta t
-$$
+X(k)
++
+theta × (mu - X(k)) × dt
+```
 
 Le résidu associé est :
 
-$$
-e_k
+```text
+erreur(k)
 =
-X_{k+1}-\widehat X_{k+1}
-$$
+X(k+1)
+-
+X_prédit(k+1)
+```
 
-Les paramètres $\theta$ et $\mu$ sont estimés en minimisant l’erreur quadratique moyenne :
+Les paramètres `theta` et `mu` sont estimés en minimisant l’erreur quadratique moyenne :
 
-$$
-\operatorname{MSE}
+```text
+MSE
 =
-\frac{1}{n}
-\sum_{k=1}^{n}e_k^2
-$$
+moyenne des erreurs(k)²
+```
 
-L’optimisation est effectuée avec `scipy.optimize.minimize`.
+L’optimisation est effectuée avec :
 
-Une fois $\theta$ et $\mu$ estimés, la volatilité est obtenue à partir de la dispersion des résidus :
+```python
+scipy.optimize.minimize
+```
 
-$$
-\widehat\sigma
+Une fois `theta` et `mu` estimés, la volatilité est obtenue à partir de la dispersion des résidus :
+
+```text
+sigma estimé
 =
-\sqrt{
-\frac{
-\frac{1}{n}\sum_{k=1}^{n}e_k^2
-}{
-\Delta t
-}
-}
-$$
+sqrt(
+    moyenne des erreurs(k)²
+    /
+    dt
+)
+```
 
 ### Exemple de résultat
 
 | Paramètre | Valeur réelle | Valeur estimée |
 |---|---:|---:|
-| Vitesse de retour $\theta$ | 1,5000 | 1,5022 |
-| Niveau moyen $\mu$ | 1,0000 | 0,9898 |
-| Volatilité $\sigma$ | 0,3000 | 0,3010 |
+| Vitesse de retour `theta` | 1,5000 | 1,5022 |
+| Niveau moyen `mu` | 1,0000 | 0,9898 |
+| Volatilité `sigma` | 0,3000 | 0,3010 |
 
 La calibration retrouve donc correctement les paramètres utilisés pour générer les données.
 
@@ -217,57 +217,73 @@ Le modèle de Heston remplace la volatilité constante du mouvement brownien gé
 
 Le prix de l’actif vérifie :
 
-$$
-dS_t
+```text
+dS(t)
 =
-rS_t\,dt
+r × S(t) × dt
 +
-\sqrt{v_t}S_t\,dW_t^S
-$$
+sqrt(v(t)) × S(t) × dW_S(t)
+```
 
 La variance vérifie :
 
-$$
-dv_t
+```text
+dv(t)
 =
-\kappa(\theta-v_t)\,dt
+kappa × (theta - v(t)) × dt
 +
-\xi\sqrt{v_t}\,dW_t^v
-$$
+xi × sqrt(v(t)) × dW_v(t)
+```
 
 Les paramètres principaux sont :
 
-- $v_t$ : variance instantanée ;
-- $\theta$ : variance moyenne de long terme ;
-- $\kappa$ : vitesse de retour vers la moyenne ;
-- $\xi$ : volatilité de la variance ;
-- $\rho$ : corrélation entre les chocs du prix et de la variance.
+- `S(t)` : prix de l’actif ;
+- `v(t)` : variance instantanée ;
+- `theta` : variance moyenne de long terme ;
+- `kappa` : vitesse de retour vers la moyenne ;
+- `xi` : volatilité de la variance ;
+- `rho` : corrélation entre les chocs du prix et de la variance ;
+- `r` : taux sans risque.
+
+La volatilité instantanée est égale à :
+
+```text
+sqrt(v(t))
+```
+
+Par exemple :
+
+```text
+v(t) = 0,04
+```
+
+correspond à une volatilité de :
+
+```text
+sqrt(0,04) = 0,20 = 20 %
+```
 
 ### Chocs corrélés
 
-À partir de deux normales indépendantes :
+À partir de deux variables normales indépendantes `Z1` et `Z2`, on construit :
 
-$$
-Z_1,Z_2\sim\mathcal N(0,1)
-$$
-
-on construit :
-
-$$
-Z_S=Z_1
-$$
+```text
+Z_stock = Z1
+```
 
 et :
 
-$$
-Z_v
+```text
+Z_variance
 =
-\rho Z_1
+rho × Z1
 +
-\sqrt{1-\rho^2}\,Z_2
-$$
+sqrt(1 - rho²) × Z2
+```
 
-Les deux variables obtenues suivent chacune une loi normale centrée réduite et leur corrélation vaut $\rho$.
+Les deux variables obtenues suivent chacune une loi normale centrée réduite et leur corrélation vaut `rho`.
+
+Lorsque `rho` est négatif, une baisse du prix est souvent associée à une hausse de la variance.
 
 ### Positivité de la variance
 
@@ -275,67 +291,104 @@ Le schéma numérique peut produire temporairement une variance négative.
 
 Une troncature à zéro est donc utilisée :
 
-$$
-v_t^+=\max(v_t,0)
-$$
+```text
+variance positive = max(variance, 0)
+```
 
 Cette méthode est simple et adaptée à un projet pédagogique, même si des schémas plus précis existent.
 
 ### Mise à jour du prix
 
-Pendant un petit pas de temps, la variance est supposée constante. Une mise à jour exponentielle inspirée du mouvement brownien géométrique est alors utilisée :
+Pendant un petit pas de temps, la variance est supposée constante.
 
-$$
-S_{k+1}
+Une mise à jour exponentielle inspirée du mouvement brownien géométrique est alors utilisée :
+
+```text
+S(k+1)
 =
-S_k
-\exp
-\left[
-\left(r-\frac{v_k^+}{2}\right)\Delta t
-+
-\sqrt{v_k^+\Delta t}\,Z_k^S
-\right]
-$$
+S(k)
+×
+exp(
+    (r - variance_positive(k) / 2) × dt
+    +
+    sqrt(variance_positive(k) × dt)
+    × Z_stock(k)
+)
+```
 
-Cette écriture garantit que le prix reste strictement positif.
+Cette écriture garantit que le prix reste strictement positif, car une exponentielle est toujours positive.
 
 ---
 
 ## 6. Pricing Monte-Carlo sous Heston
 
-Le prix d’un call européen est estimé par :
+Le prix actuel d’un call européen est obtenu à partir de la moyenne actualisée de ses payoffs futurs.
 
-$$
-C_0
+Le payoff du call à maturité est :
+
+```text
+payoff = max(S(T) - K, 0)
+```
+
+Le prix théorique est :
+
+```text
+prix du call
 =
-e^{-rT}\,
-\mathbb{E}\left[(S_T-K)^+\right]
-$$
+facteur d’actualisation
+×
+espérance du payoff
+```
 
-En simulation Monte-Carlo :
+avec :
 
-$$
-\widehat{C}_0
+```text
+facteur d’actualisation = exp(-r × T)
+```
+
+En simulation Monte-Carlo, l’espérance est remplacée par la moyenne des payoffs simulés :
+
+```text
+prix estimé
 =
-e^{-rT}
-\frac{1}{N}
-\sum_{i=1}^{N}
-\left(S_T^{(i)}-K\right)^+
-$$
+exp(-r × T)
+×
+moyenne des max(S_T(i) - K, 0)
+```
 
 L’erreur standard de l’estimation est calculée par :
 
-$$
-\operatorname{SE}
+```text
+erreur standard
 =
-\frac{s}{\sqrt{N}}
-$$
-
-où $s$ est l’écart-type empirique des payoffs actualisés.
+écart-type des payoffs actualisés
+/
+sqrt(nombre de trajectoires)
+```
 
 Le projet contient également une introduction au calcul de volatilité implicite et à la visualisation d’un skew de volatilité.
 
 Ces éléments constituent une extension du cœur principal du projet.
+
+---
+
+## 7. Volatilité implicite
+
+La volatilité implicite est la volatilité qui, utilisée dans le modèle de Black-Scholes, permet de reproduire un prix d’option donné.
+
+Le principe est :
+
+```text
+Prix Black-Scholes avec volatilité implicite
+=
+Prix obtenu sous Heston
+```
+
+La volatilité implicite permet de comparer les options de différents strikes avec une mesure commune.
+
+Le projet calcule cette volatilité pour plusieurs strikes afin de visualiser un skew de volatilité.
+
+Avec une corrélation négative entre le prix et la variance, les volatilités implicites associées aux strikes faibles peuvent être plus élevées.
 
 ---
 
