@@ -53,7 +53,7 @@ $$
 où :
 
 $$
-Z_k\sim\mathcal N(0,1).
+Z_k\sim\mathcal N(0,1)
 $$
 
 La mise à jour contient deux parties :
@@ -70,13 +70,13 @@ La moyenne théorique du processus est :
 $$
 \mathbb E[X_t]
 =
-\mu+(X_0-\mu)e^{-\theta t}.
+\mu+(X_0-\mu)e^{-\theta t}
 $$
 
 Lorsque $t$ devient grand :
 
 $$
-\mathbb E[X_t]\longrightarrow\mu.
+\mathbb E[X_t]\longrightarrow\mu
 $$
 
 La variance théorique est :
@@ -85,7 +85,7 @@ $$
 \operatorname{Var}(X_t)
 =
 \frac{\sigma^2}{2\theta}
-\left(1-e^{-2\theta t}\right).
+\left(1-e^{-2\theta t}\right)
 $$
 
 À long terme :
@@ -93,7 +93,7 @@ $$
 $$
 \operatorname{Var}(X_t)
 \longrightarrow
-\frac{\sigma^2}{2\theta}.
+\frac{\sigma^2}{2\theta}
 $$
 
 Le processus possède donc la distribution stationnaire suivante :
@@ -105,7 +105,7 @@ X_\infty
 \left(
 \mu,
 \frac{\sigma^2}{2\theta}
-\right).
+\right)
 $$
 
 Le projet vérifie numériquement ces résultats en comparant :
@@ -131,13 +131,13 @@ X_{t+\Delta t}
 \sqrt{
 \frac{1-e^{-2\theta\Delta t}}{2\theta}
 }
-Z,
+Z
 $$
 
 avec :
 
 $$
-Z\sim\mathcal N(0,1).
+Z\sim\mathcal N(0,1)
 $$
 
 Le projet compare cette simulation exacte au schéma d’Euler–Maruyama.
@@ -161,7 +161,7 @@ La prédiction moyenne d’une transition est :
 $$
 \widehat X_{k+1}
 =
-X_k+\theta(\mu-X_k)\Delta t.
+X_k+\theta(\mu-X_k)\Delta t
 $$
 
 Le résidu associé est :
@@ -169,7 +169,7 @@ Le résidu associé est :
 $$
 e_k
 =
-X_{k+1}-\widehat X_{k+1}.
+X_{k+1}-\widehat X_{k+1}
 $$
 
 Les paramètres $\theta$ et $\mu$ sont estimés en minimisant l’erreur quadratique moyenne :
@@ -178,7 +178,7 @@ $$
 \operatorname{MSE}
 =
 \frac{1}{n}
-\sum_{k=1}^{n}e_k^2.
+\sum_{k=1}^{n}e_k^2
 $$
 
 L’optimisation est effectuée avec `scipy.optimize.minimize`.
@@ -194,7 +194,7 @@ $$
 }{
 \Delta t
 }
-}.
+}
 $$
 
 ### Exemple de résultat
@@ -222,7 +222,7 @@ dS_t
 =
 rS_t\,dt
 +
-\sqrt{v_t}S_t\,dW_t^S.
+\sqrt{v_t}S_t\,dW_t^S
 $$
 
 La variance vérifie :
@@ -232,7 +232,7 @@ dv_t
 =
 \kappa(\theta-v_t)\,dt
 +
-\xi\sqrt{v_t}\,dW_t^v.
+\xi\sqrt{v_t}\,dW_t^v
 $$
 
 Les paramètres principaux sont :
@@ -248,7 +248,7 @@ Les paramètres principaux sont :
 À partir de deux normales indépendantes :
 
 $$
-Z_1,Z_2\sim\mathcal N(0,1),
+Z_1,Z_2\sim\mathcal N(0,1)
 $$
 
 on construit :
@@ -264,7 +264,7 @@ Z_v
 =
 \rho Z_1
 +
-\sqrt{1-\rho^2}\,Z_2.
+\sqrt{1-\rho^2}\,Z_2
 $$
 
 Les deux variables obtenues suivent chacune une loi normale centrée réduite et leur corrélation vaut $\rho$.
@@ -276,7 +276,7 @@ Le schéma numérique peut produire temporairement une variance négative.
 Une troncature à zéro est donc utilisée :
 
 $$
-v_t^+=\max(v_t,0).
+v_t^+=\max(v_t,0)
 $$
 
 Cette méthode est simple et adaptée à un projet pédagogique, même si des schémas plus précis existent.
@@ -294,7 +294,7 @@ S_k
 \left(r-\frac{v_k^+}{2}\right)\Delta t
 +
 \sqrt{v_k^+\Delta t}\,Z_k^S
-\right].
+\right]
 $$
 
 Cette écriture garantit que le prix reste strictement positif.
@@ -308,22 +308,19 @@ Le prix d’un call européen est estimé par :
 $$
 C_0
 =
-e^{-rT}
-\mathbb E
-\left[
-(S_T-K)^+
-\right].
+e^{-rT}\,
+\mathbb{E}\left[(S_T-K)^+\right]
 $$
 
 En simulation Monte-Carlo :
 
 $$
-\widehat C_0
+\widehat{C}_0
 =
 e^{-rT}
 \frac{1}{N}
 \sum_{i=1}^{N}
-(S_T^{(i)}-K)^+.
+\left(S_T^{(i)}-K\right)^+
 $$
 
 L’erreur standard de l’estimation est calculée par :
@@ -331,7 +328,7 @@ L’erreur standard de l’estimation est calculée par :
 $$
 \operatorname{SE}
 =
-\frac{s}{\sqrt N},
+\frac{s}{\sqrt{N}}
 $$
 
 où $s$ est l’écart-type empirique des payoffs actualisés.
